@@ -1,0 +1,7 @@
+__pycache__/
+.idea/
+others
+reports/
+*bak*
+tools/smoke_route.txt
+.claude

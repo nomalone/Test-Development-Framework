@@ -1,0 +1,250 @@
+{
+  "5-2-1-keyword-ct-close": [
+    {
+      "scene": "关键词-监测上下文-关闭",
+      "req": {
+        "content": "[MOCK:CUSTOM{人肉炸弹}]"
+      },
+      "resp": {
+        "code": 200,
+        "content_type": "text/event-stream",
+        "resp_content": "我无法回答您的问题",
+        "log_total": 1
+      }
+    }
+  ],
+  "5-2-1-keyword-ct-intercept": [
+    {
+      "scene": "关键词-监测上下文-开启-拦截-当前文本有敏感数据",
+      "req": {
+        "content": "[MOCK:CUSTOM{人肉炸弹}]"
+      },
+      "resp": {
+        "code": 200,
+        "content_type": "text/event-stream",
+        "resp_content": "我无法回答您的问题",
+        "log_total": 1
+      }
+    },
+    {
+      "scene": "关键词-监测上下文-开启-拦截-当前文本之前有敏感数据",
+      "req": {
+        "content": [
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{人肉炸弹}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好.不用解释}]"
+          }
+        ]
+      },
+      "resp": {
+        "code": 200,
+        "content_type": "text/event-stream",
+        "resp_content": "我无法回答您的问题",
+        "log_total": 1
+      }
+    },
+    {
+      "scene": "关键词-监测上下文-开启-拦截-上下文超过10条",
+      "req": {
+        "content": [
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{人肉炸弹}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          }
+        ]
+      },
+      "resp": {
+        "code": 200,
+        "content_type": "text/event-stream",
+        "resp_content": "我无法回答您的问题",
+        "log_total": 1
+      }
+    },
+    {
+      "scene": "关键词-监测上下文-开启-拦截-未命中",
+      "req": {
+        "content": [
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{今天日期}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          }
+        ]
+      },
+      "resp": {
+        "code": 200,
+        "content_type": "text/event-stream",
+        "resp_content": "我无法回答您的问题",
+        "log_total": 0
+      }
+    }
+  ],
+  "5-2-1-keyword-ct-detect": [
+    {
+      "scene": "关键词-监测上下文-开启-监测-当前文本有敏感数据",
+      "req": {
+        "content": "[MOCK:CUSTOM{人肉炸弹}]"
+      },
+      "resp": {
+        "code": 200,
+        "content_type": "text/event-stream",
+        "resp_content": "我无法回答您的问题",
+        "log_total": 1
+      }
+    },
+    {
+      "scene": "关键词-监测上下文-开启-监测-当前文本之前有敏感数据",
+      "req": {
+        "content": [
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{人肉炸弹}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好.不用解释}]"
+          }
+        ]
+      },
+      "resp": {
+        "code": 200,
+        "content_type": "text/event-stream",
+        "resp_content": "我无法回答您的问题",
+        "log_total": 1
+      }
+    },
+    {
+      "scene": "关键词-监测上下文-开启-监测-上下文超过10条",
+      "req": {
+        "content": [
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{人肉炸弹}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          }
+        ]
+      },
+      "resp": {
+        "code": 200,
+        "content_type": "text/event-stream",
+        "resp_content": "我无法回答您的问题",
+        "log_total": 1
+      }
+    },
+    {
+      "scene": "关键词-监测上下文-开启-监测-未命中",
+      "req": {
+        "content": [
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{今天日期}]"
+          },
+          {
+            "role": "user",
+            "content": "[MOCK:CUSTOM{你好}]"
+          }
+        ]
+      },
+      "resp": {
+        "code": 200,
+        "content_type": "text/event-stream",
+        "resp_content": "我无法回答您的问题",
+        "log_total": 0
+      }
+    }
+  ]
+}
