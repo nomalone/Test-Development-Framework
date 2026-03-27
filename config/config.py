@@ -2,7 +2,7 @@
 class Config(object):
     """存储项目的配置相关"""
     # 项目的HOST
-    # HOST = "10.8.13.45"
+    # HOST = "****"
     HOST = ""
     # HOST = ""
     # HOST = ""
