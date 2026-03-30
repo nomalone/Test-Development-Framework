@@ -1,0 +1,387 @@
+import sys
+import requests
+import urllib3
+from init_data import InitConfig
+from urllib3.exceptions import InsecureRequestWarning
+
+# 禁用 InsecureRequestWarning 警告
+urllib3.disable_warnings(InsecureRequestWarning)
+
+provider_info = [InitConfig().PROVIDER_MOCK_REQ, InitConfig().PROVIDER_NORMAL_REQ]
+# route_info = [InitConfig().ROUTE_MOCK_INFO, InitConfig().ROUTE_NORMAL_INFO, InitConfig().ROUTE_API_CHECK_INFO]
+route_info = [InitConfig().ROUTE_MOCK_INFO, InitConfig().ROUTE_NORMAL_INFO]
+consumer_info = InitConfig().CONSUMER
+
+
+class InitAIGW:
+
+    def __init__(self):
+        self.url = InitConfig().URL
+        self.cookie = self.login()
+        self.headers = {'Cookie': self.cookie}
+
+    def login(self):
+        """
+        登录接口，获取登录token
+        """
+        data = InitConfig().LOGIN_REQ
+        url = f"***"
+        try:
+            r = requests.post(url, json=data, verify=False)
+            r.raise_for_status()  # 检查请求是否成功
+            cookies = r.headers.get("set-cookie").split("path=/;")
+            cookie = ""
+            for i in cookies[:4]:
+                if 'secure; httponly,' in i:
+                    x = i.split('secure; httponly,')[1]
+                    cookie += x
+                else:
+                    cookie += i
+            return cookie
+        except Exception as e:
+            raise Exception("登录失败，无法初始化请求: %s" % e)
+
+    def create_provider(self, req):
+        """
+        创建模型：
+        """
+        url = f"***"
+        try:
+            search_r = requests.get(url, headers=self.headers, verify=False)
+            if req["name"] in str(search_r.json()):
+                return req["name"]
+            r = requests.post(url, headers=self.headers, json=req, verify=False)
+            r.raise_for_status()
+            provider_id = r.json()["rawConfigs"]["id"]
+            return provider_id
+        except Exception as e:
+            raise Exception("创建模型发生错误: %s" % e)
+
+    def del_provider(self, provider_id):
+        """删除模型"""
+        url = f"***"
+        try:
+            r = requests.delete(url, headers=self.headers, verify=False)
+            r.raise_for_status()
+        except Exception as e:
+            raise Exception("删除模型发生错误: %s" % e)
+
+
+    def create_domain(self, name):
+        """
+        创建域名：
+            name：域名名称，如：xxx.cn
+        """
+        req = {
+            "name": name,
+            "enableHttps": "off"
+        }
+        url = f"***"
+        try:
+            search_r = requests.get(url, headers=self.headers, verify=False)
+            if name in str(search_r.json()):
+                return
+            r = requests.post(url, headers=self.headers, json=req, verify=False)
+            r.raise_for_status()
+        except Exception as e:
+            raise Exception("创建域名发生错误: %s" % e)
+
+    def del_domain(self, name="test-functional.cn"):
+        """删除域名"""
+        url = f"***"
+        try:
+            r = requests.delete(url, headers=self.headers, verify=False)
+            r.raise_for_status()
+        except Exception as e:
+            raise Exception("删除域名发生错误: %s" % e)
+
+    def create_route(self, provider_id, route_name, route_id):
+        """
+        创建路由
+        """
+        self.create_domain(route_name)
+        remark = "".join(route_name.split(".")[:-1])
+        req2 = {}
+        url = f"***"
+
+        try:
+            search_r = requests.get(url, headers=self.headers, verify=False)
+            if route_id in str(search_r.json()):
+                return
+            r = requests.post(url, headers=self.headers, json=req2, verify=False)
+            r.raise_for_status()
+        except Exception as e:
+            raise Exception("创建路由发生错误: %s" % e)
+
+
+    def del_route(self, route_id="route-test-functional"):
+        """删除路由"""
+        url = f"***"
+        try:
+            r = requests.delete(url, headers=self.headers, verify=False)
+            r.raise_for_status()
+        except Exception as e:
+            raise Exception("删除路由发生错误: %s" % e)
+
+    def create_department(self, name=None):
+        req = {}
+        if name:
+            req["name"], req["parent"] = name.split("/")
+        url = f"**"
+        try:
+            search_params = {}
+            search_r = requests.get(url, headers=self.headers, params=search_params, verify=False)
+            for i in search_r.json()["data"]["list"]:
+                if req["name"] in str(i):
+                    return i["_id"]
+            r = requests.post(url, headers=self.headers, json=req, verify=False)
+            r.raise_for_status()
+            department_id = r.json()["data"]["_id"]
+            return department_id
+        except Exception as e:
+            raise Exception("创建部门发生错误: %s" % e)
+
+    def del_department(self, name=None):
+        """
+        删除组织架构:
+            name:组织架构全路径，如：默认/功能测试部
+        """
+        req = {}
+        if name:
+            req["fullnameList"][0] = name
+
+        url = f""
+
+        try:
+            r = requests.post(url, headers=self.headers, json=req, verify=False)
+            r.raise_for_status()
+        except Exception as e:
+            raise Exception("删除组织架构发生错误: %s" % e)
+
+    def create_consumer(self, name, uid, department_id, route_info, token=["290704b2-564d-43c0-8a91-6b52bacfd998"]):
+        """
+        创建消费者（消费者与部门、路由等资源关联）
+
+        参数:
+            name: 消费者姓名
+            uid: 消费者id
+            department_id: 部门ID（字符串类型，唯一标识消费者所属部门）
+            route_info: 路由详细信息列表（元组类型元素）
+            provider_id: 模型id
+            token: 访问令牌列表
+        """
+        route_list = []
+        for i in route_info:
+            for j in i:
+                route_list.append(j[1])
+
+        req = {}
+        url = f"****"
+
+        try:
+            search_params = {}
+            search_r = requests.get(url, headers=self.headers, params=search_params, verify=False)
+            if req["uid"] in str(search_r.json()):
+                edit_req = {}
+                requests.put(url, headers=self.headers, json=edit_req, verify=False)
+                return
+            r = requests.post(url, headers=self.headers, json=req, verify=False)
+            r.raise_for_status()
+        except Exception as e:
+            raise Exception("创建消费者发生错误: %s" % e)
+
+    def search_consumer(self, consumer_id):
+        """
+        查询消费者
+        """
+        # 查询系统是否存在该消费者
+        url = f"***"
+        r = requests.get(url, headers=self.headers, params={"uid": consumer_id}, verify=False)
+        uids = [item['uid'] for item in r.json()['data']['list']]
+        if consumer_id in uids:
+            return consumer_id
+
+    def del_consumer(self, consumer_id):
+        """
+        删除消费者
+        """
+        url = f"***"
+        req = {
+            "uidList": [consumer_id]
+        }
+        r = requests.post(url, headers=self.headers, json=req, verify=False)
+        try:
+            r.raise_for_status()
+        except Exception as e:
+            raise Exception("删除消费者发生错误: %s" % e)
+
+    def create_v1_check(self):
+        """创建API keys"""
+        # 查询系统是否有该数据
+        url = f"***"
+        params = {}
+        r = requests.get(url, headers=self.headers, params=params, verify=False)
+        v1_list = r.json()['data']['list']
+        for i in v1_list:
+            # 有该数据则再次编辑该数据，使v1_check绑定消费者
+            if "auto_v1_check" == i["name"]:
+                id = i["_id"]
+                edit_req = {}
+                edit_url = f"***"
+                requests.put(edit_url, headers=self.headers, json=edit_req, verify=False)
+                return
+        # 没有则创建对应的v1_check
+        req = {}
+        r = requests.post(url, headers=self.headers, json=req, verify=False)
+        try:
+            r.raise_for_status()
+        except Exception as e:
+            raise Exception("创建V1_CHECK发生错误: %s" % e)
+
+    def write_smoke_route_to_txt(self):
+        """创建后API-CHECK后，写入API-CHECK的ID到smoke_route.txt文件"""
+        global api_check_id, api_route_id
+        url = f"***"
+        params = {}
+        r = requests.get(url, headers=self.headers, params=params, verify=False)
+        v1_list = r.json()['data']['list']
+        for i in v1_list:
+            if "auto_v1_check" == i["name"]:
+                api_route_id = i["route_id"]
+                api_check_id = i["_id"]
+                with open("smoke_route.txt", "w") as f:
+                    f.write(api_route_id[4:])
+                break
+
+    def del_v1_check(self):
+        """删除v1_check"""
+        url = f"**"
+        params = {
+            "page": 1,
+            "pageSize": 1000
+        }
+        r = requests.get(url, headers=self.headers, params=params, verify=False)
+        v1_list = r.json()['data']['list']
+        for i in v1_list:
+            if "auto_v1_check" == i["name"]:
+                id = i["_id"]
+                del_url = f"{self.url}/api/apiKey/{id}"
+                requests.delete(del_url, headers=self.headers, verify=False)
+                break
+
+    def del_all(self):
+        # 删除系统中可能存在的消费者、组织架构、路由、域名、模型
+        self.del_v1_check()
+
+        for i in consumer_info:
+            self.del_consumer(i[0])
+
+        self.del_department()
+
+        for i in route_info:
+            for j in i:
+                self.del_route(j[1])
+                self.del_domain(j[0])
+
+        for i in provider_info:
+            for j in i:
+                self.del_provider(j["name"])
+
+    def create_all(self):
+        # 创建模型
+        provider_mock_id = self.create_provider(provider_info[0][0])
+        provider_auto_id = self.create_provider(provider_info[1][0])
+
+        # 创建路由
+        for i in route_info[0]:
+            self.create_route(provider_mock_id, i[0], i[1])
+        for i in route_info[1]:
+            self.create_route(provider_auto_id, i[0], i[1])
+        self.create_api_check_route(provider_auto_id, InitConfig().ROUTE_API_CHECK_INFO[0])
+
+        # 创建组织架构、消费者
+        department_id = self.create_department()
+        self.create_consumer(consumer_info[0][1], consumer_info[0][0], department_id, route_info)
+
+        # 创建v1_check
+        self.create_v1_check()
+
+        # 写入冒烟路由ID到txt文件
+        self.write_smoke_route_to_txt()
+        # 初始化api_check插件配置
+        SetGuard().set_api_check()
+
+
+class SetGuard:
+    """增强管理所有插件保存，生成对应的路由，并关闭所有插件"""
+    def __init__(self):
+        self.url = InitConfig().URL
+        self.cookie = InitAIGW().login()
+        self.headers = {'Cookie': self.cookie}
+
+    def set_guard(self, pluginName, configurations, route_id, enabled = True):
+        data = {}
+        url = f"***"
+        try:
+            r = requests.put(url, headers=self.headers, json=data, verify=False)
+            r.raise_for_status()
+        except Exception as e:
+            raise Exception("插件配置发生错误: %s" % e)
+
+    def set_api_check(self):
+        data = {}
+        url = f"***"
+        try:
+            r = requests.put(url, headers=self.headers, json=data, verify=False)
+            r.raise_for_status()
+        except Exception as e:
+            raise Exception("插件配置发生错误: %s" % e)
+
+    def save_set(self):
+        for i in route_info:
+            for j in i:
+                route_id = j[1]
+                guard_list = InitConfig().GUARD
+                guard_conf = InitConfig().GUARD_CONF
+                for index, values in enumerate(guard_list):
+                    if values == "ks-waf":
+                        self.set_guard(values, guard_conf[index], route_id, False)
+                    else:
+                        self.set_guard(values, guard_conf[index], route_id)
+
+
+
+if __name__ == '__main__':
+    init = InitAIGW()
+    # 无参数时默认执行 create_all
+    if len(sys.argv) == 1:
+        method_name = "create_all"
+        method_args = []
+    else:
+        method_name = sys.argv[1]
+        method_args = sys.argv[2:]  # 收集方法参数
+
+    # 区分无参数方法和有参数方法
+    no_arg_methods = {"create_all", "del_all"}  # 定义无参数方法集合
+    method = getattr(init, method_name)
+
+    try:
+        if method_name in no_arg_methods:
+            # 无参数方法不允许传参
+            if len(method_args) > 0:
+                raise TypeError(f"方法 {method_name} 不接受参数，却传入了：{method_args}")
+            method()
+        else:
+            # 有参数方法必须传参
+            if len(method_args) == 0:
+                raise TypeError(f"方法 {method_name} 需要传入参数，请补充参数")
+            method(*method_args)
+    except TypeError as e:
+        print(f"参数错误：{e}")
+        sys.exit(1)
+
+    if method_name == "create_all":
+        guard = SetGuard()
+        guard.save_set()
+
+    print(f"{method_name} 完成")
